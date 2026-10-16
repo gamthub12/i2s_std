@@ -1,0 +1,12 @@
+{
+  "base": "http://192.168.100.167",
+  "events": [
+    "alarms page loaded",
+    "20 alarms accepted; 21st rejected",
+    "alarm edit persisted in API",
+    "manual play and stop returned correct status",
+    "scheduled alarm rang with audio active",
+    "one-time alarm stopped and disabled itself"
+  ],
+  "target": "2026-10-01T21:52:00+07:00"
+}

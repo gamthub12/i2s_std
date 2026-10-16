@@ -1,0 +1,12 @@
+{
+  "file": "hello.txt",
+  "bytes": 24,
+  "sha256Before": "1e6c419c1832dd4e134161c17e9af85ca9664f221970152907598d73120d6f69",
+  "transitions": [
+    "removed",
+    "reinserted"
+  ],
+  "unmountedSeconds": 15.54,
+  "sha256After": "1e6c419c1832dd4e134161c17e9af85ca9664f221970152907598d73120d6f69",
+  "readMatches": true
+}

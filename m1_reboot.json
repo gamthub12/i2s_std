@@ -1,0 +1,10 @@
+{
+  "base": "http://192.168.100.167",
+  "events": [
+    "alarms page loaded",
+    "20 alarms accepted; 21st rejected",
+    "alarm edit persisted in API",
+    "manual play and stop returned correct status",
+    "NVS alarm survived reboot"
+  ]
+}

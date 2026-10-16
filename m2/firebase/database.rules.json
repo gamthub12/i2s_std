@@ -1,0 +1,49 @@
+{
+  "rules": {
+    ".read": false,
+    ".write": false,
+    "registry": { ".read": false, ".write": false },
+    "users": {
+      "$uid": {
+        "devices": {
+          ".read": "auth != null && auth.uid === $uid",
+          ".write": false
+        }
+      }
+    },
+    "devices": {
+      "$deviceId": {
+        "inbox": {
+          ".read": "auth != null && root.child('registry').child($deviceId).child('revoked').val() !== true && ((auth.token.role === 'device' && auth.token.deviceId === $deviceId) || root.child('registry').child($deviceId).child('ownerUid').val() === auth.uid)",
+          "desired": {
+            ".write": "auth != null && root.child('registry').child($deviceId).child('revoked').val() !== true && root.child('registry').child($deviceId).child('ownerUid').val() === auth.uid",
+            ".validate": "newData.hasChildren(['revision', 'timezone', 'manualSound', 'alarmCount', 'nextId']) && newData.child('revision').isNumber() && newData.child('revision').val() >= 1 && (!data.exists() || newData.child('revision').val() > data.child('revision').val()) && newData.child('timezone').val() === 'Asia/Ho_Chi_Minh' && newData.child('manualSound').isString() && newData.child('manualSound').val().length <= 95 && newData.child('alarmCount').isNumber() && newData.child('alarmCount').val() >= 0 && newData.child('alarmCount').val() <= 20 && newData.child('nextId').isNumber() && newData.child('nextId').val() >= 1",
+            "alarms": {
+              "$alarmId": {
+                ".validate": "newData.hasChildren(['id', 'enabled', 'hour', 'minute', 'days', 'volume', 'ringSeconds', 'snoozeMinutes', 'name', 'sound']) && newData.child('id').isNumber() && newData.child('id').val() > 0 && newData.child('enabled').isBoolean() && newData.child('hour').isNumber() && newData.child('hour').val() >= 0 && newData.child('hour').val() <= 23 && newData.child('minute').isNumber() && newData.child('minute').val() >= 0 && newData.child('minute').val() <= 59 && newData.child('days').isNumber() && newData.child('days').val() >= 0 && newData.child('days').val() <= 127 && newData.child('volume').isNumber() && newData.child('volume').val() >= 0 && newData.child('volume').val() <= 100 && newData.child('ringSeconds').isNumber() && newData.child('ringSeconds').val() >= 5 && newData.child('ringSeconds').val() <= 30 && newData.child('snoozeMinutes').isNumber() && newData.child('snoozeMinutes').val() >= 0 && newData.child('snoozeMinutes').val() <= 60 && newData.child('name').isString() && newData.child('name').val().length <= 31 && newData.child('sound').isString() && newData.child('sound').val().length <= 95"
+              }
+            }
+          },
+          "commands": {
+            "$commandId": {
+              ".write": "auth != null && root.child('registry').child($deviceId).child('revoked').val() !== true && root.child('registry').child($deviceId).child('ownerUid').val() === auth.uid && !data.exists()",
+              ".validate": "newData.hasChildren(['type', 'issuedAt', 'expiresAt']) && (newData.child('type').val() === 'playNow' || newData.child('type').val() === 'stop' || newData.child('type').val() === 'snooze') && newData.child('issuedAt').isNumber() && newData.child('expiresAt').isNumber()"
+            }
+          }
+        },
+        "reported": {
+          ".read": "auth != null && root.child('registry').child($deviceId).child('ownerUid').val() === auth.uid",
+          ".write": "auth != null && auth.token.role === 'device' && auth.token.deviceId === $deviceId && root.child('registry').child($deviceId).child('revoked').val() !== true",
+          ".validate": "newData.hasChildren(['appliedRevision', 'lastSeen', 'clockSynced', 'sdMounted', 'playing']) && newData.child('appliedRevision').isNumber() && newData.child('lastSeen').isNumber() && newData.child('clockSynced').isBoolean() && newData.child('sdMounted').isBoolean() && newData.child('playing').isBoolean()"
+        },
+        "acks": {
+          ".read": "auth != null && root.child('registry').child($deviceId).child('ownerUid').val() === auth.uid",
+          "$commandId": {
+            ".write": "auth != null && auth.token.role === 'device' && auth.token.deviceId === $deviceId && root.child('registry').child($deviceId).child('revoked').val() !== true",
+            ".validate": "newData.hasChildren(['state', 'at']) && (newData.child('state').val() === 'done' || newData.child('state').val() === 'expired' || newData.child('state').val() === 'error') && newData.child('at').isNumber()"
+          }
+        }
+      }
+    }
+  }
+}

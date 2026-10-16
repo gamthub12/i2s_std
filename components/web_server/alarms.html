@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Báo thức ESP32</title>
+<style>
+:root{font-family:system-ui,sans-serif;color-scheme:dark;background:#0b1220;color:#edf2fb}
+*{box-sizing:border-box}body{margin:0;padding:20px}main{max-width:920px;margin:auto}
+a{color:#93c5fd}h1{margin:12px 0 4px}h2{font-size:1.15rem;margin-top:0}
+.muted{color:#a6b4cb}.panel{background:#182438;border:1px solid #33435c;border-radius:14px;padding:18px;margin:16px 0}
+.row{display:flex;gap:12px;flex-wrap:wrap;align-items:end}.field{display:flex;flex-direction:column;gap:5px;flex:1;min-width:145px}
+input,select{background:#0e1929;border:1px solid #465773;border-radius:8px;padding:10px;color:#fff;font:inherit;width:100%}
+input[type=checkbox]{width:auto}input[type=range]{padding:4px}label{font-size:.92rem}
+button{background:#3b82f6;border:0;border-radius:8px;padding:10px 14px;color:white;font:inherit;cursor:pointer}
+button.secondary{background:#42536d}button.danger{background:#b84045}button:disabled{opacity:.5;cursor:default}
+.days{display:flex;flex-wrap:wrap;gap:6px;margin:12px 0}.days label{padding:7px 8px;background:#26354c;border-radius:8px}
+.alarm{border-top:1px solid #354761;padding:12px 0;display:flex;align-items:center;gap:12px;justify-content:space-between;flex-wrap:wrap}
+.alarm:first-child{border-top:0}.alarm .time{font-size:1.5rem;font-weight:700}.alarm .details{color:#b9c7d9;font-size:.87rem}
+.actions{display:flex;gap:6px}.pill{display:inline-block;border-radius:99px;background:#254635;color:#aaf0c4;padding:4px 9px;font-size:.82rem}
+#message{min-height:1.5em;margin:8px 0;color:#aaf0c4}.bad{color:#ff9da2!important}
+@media(max-width:600px){body{padding:12px}.panel{padding:14px}.alarm{align-items:flex-start}}
+</style>
+</head>
+<body><main>
+<a href="/">← Quản lý tệp SD</a>
+<h1>Loa báo thức</h1><p class="muted">Điều khiển tại mạng Wi-Fi nội bộ · giờ Việt Nam (UTC+7)</p>
+<div id="message" role="status"></div>
+<section class="panel">
+<h2>Trạng thái</h2>
+<p id="clock">Đang đọc giờ thiết bị…</p><p id="next" class="muted"></p><p id="playback" class="muted"></p>
+<div class="row"><button id="playNow">▶ Phát ngay</button><button id="stop" class="danger">■ Dừng</button><button id="snooze" class="secondary">Báo lại</button></div>
+</section>
+<section class="panel">
+<h2>Âm phát ngay</h2>
+<div class="row"><label class="field">Chọn âm báo<select id="manualSound"></select></label><button id="saveManual">Lưu âm phát ngay</button></div>
+<p class="muted">Không chọn tệp thì dùng âm nhúng. Nếu SD hoặc tệp không có, thiết bị tự dùng âm nhúng.</p>
+</section>
+<section class="panel">
+<h2 id="formTitle">Thêm báo thức</h2>
+<form id="form"><input type="hidden" id="id" value="0">
+<div class="row"><label class="field">Tên<input id="name" maxlength="31" value="Báo thức" required></label>
+<label class="field">Giờ<input id="time" type="time" value="07:00" required></label>
+<label class="field">Âm báo<select id="sound"></select></label></div>
+<div class="days" id="days"></div>
+<div class="row"><label class="field">Âm lượng <span id="volumeLabel">50%</span><input id="volume" type="range" min="0" max="100" value="50"></label>
+<label class="field">Thời gian reo (giây)<input id="ringSeconds" type="number" min="5" max="30" value="30" required></label>
+<label class="field">Báo lại (phút, 0 = tắt)<input id="snoozeMinutes" type="number" min="0" max="60" value="5" required></label></div>
+<p><label><input id="enabled" type="checkbox" checked> Bật báo thức</label></p>
+<div class="row"><button type="submit">Lưu báo thức</button><button type="button" id="reset" class="secondary">Tạo mới</button></div>
+</form><p class="muted">Không chọn ngày: reo một lần rồi tự tắt. Chọn ngày: lặp hằng tuần.</p>
+</section>
+<section class="panel"><h2>Danh sách báo thức <span id="count" class="pill">0/20</span></h2><div id="alarms"></div></section>
+</main>
+<script>
+const $=id=>document.getElementById(id);let alarms=[],files=[];const dayNames=['CN','T2','T3','T4','T5','T6','T7'];
+function message(text,bad=false){$('message').textContent=text;$('message').className=bad?'bad':''}
+function date(t){return t?new Date(t*1000).toLocaleString('vi-VN',{timeZone:'Asia/Ho_Chi_Minh',hour12:false}):'—'}
+function setOptions(select,selected){select.replaceChildren();let opts=[['','Âm mặc định (nhúng)'],...files.map(f=>[f,f])];
+ if(selected&&!files.includes(selected))opts.push([selected,selected+' (không có trên SD)']);
+ for(const [value,label] of opts){const o=document.createElement('option');o.value=value;o.textContent=label;select.append(o)}select.value=selected||''}
+async function api(path,body){const r=await fetch(path,{method:'POST',headers:body?{'Content-Type':'application/x-www-form-urlencoded'}:{},body:body?new URLSearchParams(Object.entries(body).map(([k,v])=>[k,typeof v==='boolean'?(v?'1':'0'):String(v)])).toString():undefined});
+ if(!r.ok)throw Error((await r.text()).replace(/<[^>]*>/g,' ').slice(0,150)||`HTTP ${r.status}`);return r}
+async function loadFiles(){try{const r=await fetch('/list',{cache:'no-store'});files=(await r.json()).filter(f=>f.name.toLowerCase().endsWith('.wav')).map(f=>f.name);}
+ catch{files=[]}setOptions($('sound'),$('sound').value);setOptions($('manualSound'),$('manualSound').value)}
+function renderList(){const box=$('alarms');box.replaceChildren();$('count').textContent=alarms.length+'/20';
+ if(!alarms.length){box.textContent='Chưa có báo thức.';return}
+ for(const a of alarms){const row=document.createElement('div');row.className='alarm';
+ const info=document.createElement('div');const title=document.createElement('div');title.className='time';title.textContent=`${String(a.hour).padStart(2,'0')}:${String(a.minute).padStart(2,'0')} ${a.enabled?'':'· Tắt'}`;
+ const details=document.createElement('div');details.className='details';details.textContent=`${a.name||'Báo thức'} · ${a.days?dayNames.filter((_,i)=>a.days&(1<<i)).join(', '):'Một lần'} · ${a.sound||'Âm mặc định'} · ${a.volume}% · ${a.ringSeconds}s`;
+ info.append(title,details);const actions=document.createElement('div');actions.className='actions';
+ const edit=document.createElement('button');edit.className='secondary';edit.textContent='Sửa';edit.onclick=()=>editAlarm(a);
+ const del=document.createElement('button');del.className='danger';del.textContent='Xóa';del.onclick=()=>deleteAlarm(a);
+ actions.append(edit,del);row.append(info,actions);box.append(row)}}
+async function refresh(){try{const [alarmResp,statusResp]=await Promise.all([fetch('/api/alarms',{cache:'no-store'}),fetch('/status',{cache:'no-store'})]);
+ const data=await alarmResp.json(),status=await statusResp.json();alarms=data.alarms;renderList();
+ $('clock').textContent=data.clockValid?`Giờ thiết bị: ${date(data.now)}`:'Chưa đồng bộ giờ NTP. Báo thức sẽ chờ đến khi có giờ hợp lệ.';
+ $('next').textContent=data.nextAt?`Lần reo tiếp theo: ${date(data.nextAt)} (ID ${data.nextId})`:'Chưa có lịch reo tiếp theo.';
+ $('playback').textContent=status.playing?`${data.ringing?'Đang reo báo thức': 'Đang phát'}: ${status.file||'Âm nhúng'}`:'Loa đang dừng';
+ $('snooze').disabled=!data.ringing;
+ if(document.activeElement!==$('manualSound'))setOptions($('manualSound'),data.manualSound);
+ }catch(e){message('Không đọc được trạng thái: '+e.message,true)}}
+function resetForm(){$('form').reset();$('id').value='0';$('time').value='07:00';$('name').value='Báo thức';$('formTitle').textContent='Thêm báo thức';$('volumeLabel').textContent='50%';
+ document.querySelectorAll('.day').forEach(c=>c.checked=false);setOptions($('sound'),'')}
+function editAlarm(a){$('id').value=a.id;$('name').value=a.name;$('time').value=`${String(a.hour).padStart(2,'0')}:${String(a.minute).padStart(2,'0')}`;
+ $('enabled').checked=a.enabled;$('volume').value=a.volume;$('volumeLabel').textContent=a.volume+'%';$('ringSeconds').value=a.ringSeconds;$('snoozeMinutes').value=a.snoozeMinutes;
+ document.querySelectorAll('.day').forEach((c,i)=>c.checked=!!(a.days&(1<<i)));setOptions($('sound'),a.sound);$('formTitle').textContent='Sửa báo thức #'+a.id;$('form').scrollIntoView({behavior:'smooth'})}
+async function deleteAlarm(a){if(!confirm(`Xóa báo thức ${a.name||'#'+a.id}?`))return;try{await api('/api/alarms/delete',{id:a.id});message('Đã xóa báo thức');await refresh()}
+ catch(e){message(e.message,true)}}
+for(let i=0;i<7;i++){const l=document.createElement('label');const c=document.createElement('input');c.type='checkbox';c.className='day';l.append(c,document.createTextNode(' '+dayNames[i]));$('days').append(l)}
+$('form').onsubmit=async e=>{e.preventDefault();const [hour,minute]=$('time').value.split(':').map(Number);let days=0;document.querySelectorAll('.day').forEach((c,i)=>{if(c.checked)days|=1<<i});
+ const item={id:Number($('id').value),name:$('name').value,enabled:$('enabled').checked,hour,minute,days,sound:$('sound').value,volume:Number($('volume').value),ringSeconds:Number($('ringSeconds').value),snoozeMinutes:Number($('snoozeMinutes').value)};
+ try{await api('/api/alarms/save',item);message('Đã lưu báo thức');resetForm();await refresh()}catch(err){message(err.message,true)}};
+$('volume').oninput=()=>{$('volumeLabel').textContent=$('volume').value+'%'};$('reset').onclick=resetForm;
+$('saveManual').onclick=async()=>{try{await api('/api/manual-sound',{sound:$('manualSound').value});message('Đã lưu âm phát ngay');await refresh()}catch(e){message(e.message,true)}};
+for(const [id,path] of [['playNow','/api/play-now'],['stop','/stop'],['snooze','/api/snooze']]){$(id).onclick=async()=>{try{await api(path);await refresh()}catch(e){message(e.message,true)}}}
+loadFiles().then(refresh);setInterval(refresh,2000);setInterval(loadFiles,30000);
+</script></body></html>

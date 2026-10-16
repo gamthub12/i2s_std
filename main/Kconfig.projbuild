@@ -1,0 +1,70 @@
+menu "Audio device configuration"
+
+    config AUDIO_ENABLE_MIC
+        bool "Start microphone task"
+        default n
+        help
+            Keep this disabled during M0 speaker and SD-card validation.
+            Enable it when microphone recording is added to the alarm app.
+
+    config WIFI_SSID
+        string "Wi-Fi network name (SSID)"
+        default ""
+        help
+            SSID used by the device in Wi-Fi station mode.
+
+    config WIFI_PASSWORD
+        string "Wi-Fi password"
+        default ""
+        help
+            Password for the configured Wi-Fi network. Keep local sdkconfig private.
+
+    config M2_FIREBASE_ENABLED
+        bool "Enable M2 Firebase synchronization"
+        default n
+        help
+            The alarm scheduler continues locally while Firebase is unavailable.
+
+    config M2_FIREBASE_EMULATOR
+        bool "Use Firebase Local Emulator Suite (trusted LAN only)"
+        depends on M2_FIREBASE_ENABLED
+        default y
+        help
+            Emulator traffic is plain HTTP. Never use this mode outside a trusted test LAN.
+
+    config M2_FIREBASE_HOST
+        string "Emulator host LAN IP (computer running Firebase Emulator)"
+        depends on M2_FIREBASE_ENABLED && M2_FIREBASE_EMULATOR
+        default ""
+
+    config M2_FIREBASE_SPARK
+        bool "Use Spark Authentication and local pairing (no Cloud Functions)"
+        depends on M2_FIREBASE_ENABLED && !M2_FIREBASE_EMULATOR
+        default n
+
+    config M2_FIREBASE_PROJECT_ID
+        string "Firebase project ID"
+        depends on M2_FIREBASE_ENABLED
+        default "demo-alarm"
+
+    config M2_FIREBASE_NAMESPACE
+        string "Realtime Database namespace"
+        depends on M2_FIREBASE_ENABLED
+        default "demo-alarm-default-rtdb"
+
+    config M2_FIREBASE_API_KEY
+        string "Firebase Web API key (fake-api-key for Emulator)"
+        depends on M2_FIREBASE_ENABLED
+        default "fake-api-key"
+
+    config M2_FIREBASE_FUNCTIONS_BASE
+        string "Production HTTPS Functions base URL (without trailing slash)"
+        depends on M2_FIREBASE_ENABLED && !M2_FIREBASE_EMULATOR
+        default ""
+
+    config M2_FIREBASE_DATABASE_BASE
+        string "Production HTTPS Realtime Database base URL"
+        depends on M2_FIREBASE_ENABLED && !M2_FIREBASE_EMULATOR
+        default ""
+
+endmenu

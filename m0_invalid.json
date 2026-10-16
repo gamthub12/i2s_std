@@ -1,0 +1,69 @@
+{
+  "baseUrl": "http://192.168.100.167",
+  "cyclesRequested": 1,
+  "files": {
+    "m0_mono_da1d2c3b.wav": {
+      "bytes": 160044,
+      "sha256": "e17ba86bb6f6a2df0b0737e04e4ac5e3f770c8a13b631ea59cc1d72ef9d40b77"
+    },
+    "m0_stereo_da1d2c3b.wav": {
+      "bytes": 882044,
+      "sha256": "94654e16efeb9f5c5be680d921771b9195e12b3941bb599b751ee21388a4f224"
+    }
+  },
+  "healthBefore": {
+    "sdMounted": true,
+    "internalFree": 244571,
+    "internalMinimum": 241015,
+    "internalLargest": 167936,
+    "psramFree": 8320832
+  },
+  "invalidWavRejected": true,
+  "cyclesCompleted": 1,
+  "healthAfter": {
+    "sdMounted": true,
+    "internalFree": 244159,
+    "internalMinimum": 224275,
+    "internalLargest": 167936,
+    "psramFree": 8379208
+  },
+  "serialPlaybackStarts": {
+    "m0_mono_da1d2c3b.wav": 2,
+    "m0_stereo_da1d2c3b.wav": 1
+  },
+  "serialErrors": [],
+  "serialDiagnostics": [
+    "rst:0x1 (POWERON),boot:0x2b (SPI_FAST_FLASH_BOOT)",
+    "I (1410) sd_card: SD Card Background Monitor Task started",
+    "I (1450) audio_player: Audio player task started",
+    "I (1480) sd_card: Thẻ SD đã được cắm vào! (Phát hiện thời gian thực, tự động mount)",
+    "I (1500) sd_card: Opening file /sdcard/.sd_card_check.tmp for writing",
+    "I (1600) sd_card: File written successfully",
+    "I (1600) sd_card: Opening file /sdcard/.sd_card_check.tmp for reading",
+    "I (1600) sd_card: Read from file: Hello ESP32-S3 SD Card!",
+    "I (21070) audio_player: Play requested: /sdcard/m0_mono_da1d2c3b.wav",
+    "I (21080) audio_player: === Playing SD file: /sdcard/m0_mono_da1d2c3b.wav ===",
+    "I (21090) audio_player: WAV fmt: format=1 ch=1 rate=16000 bits=16",
+    "I (21090) audio_player: Playing SD: 16000 Hz, 1 ch, 16-bit, 160000 bytes",
+    "I (22570) audio_player: Stop requested",
+    "I (22580) audio_player: === SD playback finished ===",
+    "I (22840) audio_player: Play requested: /sdcard/m0_stereo_da1d2c3b.wav",
+    "I (22880) audio_player: === Playing SD file: /sdcard/m0_stereo_da1d2c3b.wav ===",
+    "I (22880) audio_player: WAV fmt: format=1 ch=2 rate=44100 bits=16",
+    "I (22880) audio_player: Playing SD: 44100 Hz, 2 ch, 16-bit, 882000 bytes",
+    "I (24330) audio_player: Stop requested",
+    "I (24340) audio_player: === SD playback finished ===",
+    "I (24950) audio_player: Play requested: /sdcard/m0_invalid_da1d2c3b.wav",
+    "I (25040) audio_player: === Playing SD file: /sdcard/m0_invalid_da1d2c3b.wav ===",
+    "E (25040) audio_player: Not a WAV file: /sdcard/m0_invalid_da1d2c3b.wav",
+    "I (25040) audio_player: === SD playback finished ===",
+    "I (25350) audio_player: Stop requested",
+    "I (25540) audio_player: Play requested: /sdcard/m0_mono_da1d2c3b.wav",
+    "I (25550) audio_player: === Playing SD file: /sdcard/m0_mono_da1d2c3b.wav ===",
+    "I (25550) audio_player: WAV fmt: format=1 ch=1 rate=16000 bits=16",
+    "I (25550) audio_player: Playing SD: 16000 Hz, 1 ch, 16-bit, 160000 bytes",
+    "I (25850) audio_player: Stop requested",
+    "I (25860) audio_player: === SD playback finished ==="
+  ],
+  "panicContext": []
+}

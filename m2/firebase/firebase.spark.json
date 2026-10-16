@@ -1,0 +1,4 @@
+{
+  "auth": { "providers": { "emailPassword": true } },
+  "database": { "rules": "database.spark.rules.json" }
+}

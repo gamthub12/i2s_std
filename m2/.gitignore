@@ -1,0 +1,9 @@
+.tools/
+artifacts/
+firebase/node_modules/
+firebase/functions/node_modules/
+firebase/.firebase/
+android/.gradle/
+android/local.properties
+android/app/google-services.json
+*.log
