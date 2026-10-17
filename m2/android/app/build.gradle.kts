@@ -13,8 +13,8 @@ android {
         applicationId = "vn.local.alarmspeaker"
         minSdk = 26
         targetSdk = 35
-        versionCode = 1
-        versionName = "0.2-test"
+        versionCode = 2
+        versionName = "0.3.0"
         val host = providers.gradleProperty("emulatorHost").orElse("10.0.2.2").get()
         val useEmulator = providers.gradleProperty("useFirebaseEmulator").orElse("true").get().toBooleanStrict()
         val config = if (!useEmulator) {
@@ -53,8 +53,12 @@ dependencies {
     implementation("androidx.compose.material3:material3")
     implementation("androidx.compose.foundation:foundation")
     implementation("androidx.compose.ui:ui")
+    implementation("androidx.compose.material:material-icons-extended")
+    implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.8.7")
+    implementation("androidx.fragment:fragment:1.8.6")
     implementation(platform("com.google.firebase:firebase-bom:33.16.0"))
     implementation("com.google.firebase:firebase-auth")
     implementation("com.google.firebase:firebase-database")
     implementation("com.google.firebase:firebase-functions")
+    testImplementation("junit:junit:4.13.2")
 }

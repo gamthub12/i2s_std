@@ -1,5 +1,7 @@
 # ESP32-S3 Audio Device
 
+Android **0.3** adds a blue Material 3 interface, separate sign-in/sign-out, and phone recording → verified WAV upload to the speaker's SD card over the local network. See [M3_RESULT.md](M3_RESULT.md) for usage, APKs, validation and the LAN-only audio-transfer scope.
+
 ESP-IDF firmware for an ESP32-S3 board with I2S audio playback, microphone recording, SD card storage and a Wi-Fi file manager.
 
 ## What it does

@@ -109,6 +109,8 @@ Chỉ lưu ID/path trong lịch; không nhúng URL tải có hạn dùng vào c�
 
 ### M3 — Thư viện âm và thu âm
 
+**Cập nhật 16/10/2026:** đã triển khai thu âm Android, thư viện local, nghe thử và gửi WAV trực tiếp qua LAN xuống SD, kiểm tra lại SHA-256 rồi chọn cho báo thức/Phát ngay. Xem [M3_RESULT.md](M3_RESULT.md). Các mục Cloud Storage và tải WAV từ xa bên dưới vẫn chưa triển khai; bản hiện tại giữ Firebase Spark và dùng API LAN hiện có.
+
 1. Android tải WAV lên Storage; backend kiểm tra quyền, kích thước/định dạng. ESP tải về SD theo file tạm và kiểm tra hash.
 2. Chọn âm báo riêng cho từng báo thức, âm phát ngay riêng và âm mặc định. Xử lý file bị xóa hoặc SD đầy bằng âm nhúng.
 3. Thu âm bằng micro Android tối đa 30 giây. Nếu người dùng chọn bản ghi dài hơn, chỉ xử lý 30 giây đầu; chuẩn hóa WAV PCM 16 bit rồi mới tải lên Storage. Không bật task micro cũ trên ESP32.

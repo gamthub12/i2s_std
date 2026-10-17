@@ -14,8 +14,8 @@
     "--query-driver=**",
     "--compile-commands-dir=c:\\Users\\gamth\\i2s_std\\build"
   ],
-  "idf.monitorPort": "COM4",
+  "idf.monitorPort": "COM3",
   "idf.flashType": "UART",
   "python-envs.defaultEnvManager": "ms-python.python:system",
-  "idf.port": "COM4"
+  "idf.port": "COM3"
 }
